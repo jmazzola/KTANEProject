@@ -9,7 +9,7 @@ using TMPro;
 
 namespace KTANEProject
 {
-    public class Menu : MonoBehaviour
+    public class Hax : MonoBehaviour
     {
         GameplayState gameplayState;
 

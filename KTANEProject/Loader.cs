@@ -15,7 +15,7 @@ namespace KTANEProject
             // Create a new gameobject
             gameObject = new GameObject();
             // Add our script to it
-            gameObject.AddComponent<Menu>();
+            gameObject.AddComponent<Hax>();
             // Never delete this until we close the game
             UnityEngine.Object.DontDestroyOnLoad(gameObject);
         }
