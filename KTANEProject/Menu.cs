@@ -15,6 +15,18 @@ namespace KTANEProject
         // Is the menu open?
         bool bMenuOpen = false;
 
+        // Does our bomb include these modules?
+        bool bIncludeWires, bIncludeWhosOnFirst, bIncludeSimon, bIncludeVennWire, bIncludeMemory, bIncludeButton, bIncludeMaze, bIncludeMorse, bIncludeWireSeq, bIncludePW;
+
+        // Does our bomb include these needy modules?
+        bool bIncludeKnob, bIncludeVent, bIncludeCapacitor;
+
+        // Do we let the game generate our own bomb?
+        bool bCustomBomb;
+
+        // If we allow custom bombs, what is our seed?
+        int nCustomSeed;
+
         // Print out the serial information - number, odd/even in number, has/hasnt a vowel in number
         string GetSerialInfo()
         {
