@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using UnityEngine;
 using System.Runtime.InteropServices;
+using Assets.Scripts.Components.VennWire;
 using TMPro;
 
 namespace KTANEProject
@@ -87,9 +88,9 @@ namespace KTANEProject
         {
             string ports = string.Empty;
 
-            foreach(PortWidget port in gameplayState.Bomb.WidgetManager.GetBehaviors<PortWidget>())
+            foreach (PortWidget port in gameplayState.Bomb.WidgetManager.GetBehaviors<PortWidget>())
             {
-                if(port.IsPortPresent(PortWidget.PortType.Parallel))
+                if (port.IsPortPresent(PortWidget.PortType.Parallel))
                     ports += "Parallel ";
 
                 if (port.IsPortPresent(PortWidget.PortType.DVI))
@@ -114,19 +115,138 @@ namespace KTANEProject
             return ports;
         }
 
-        // Print out all the modules
+        // Print out all the modules and their information to help identify which one is which
         string GetModules()
         {
-            
+
             string modules = string.Empty;
             for (int i = 0; i < gameplayState.Bomb.BombComponents.Count; i++)
             {
-                string type = gameplayState.Bomb.BombComponents[i].ComponentType.ToString();
+                BombComponent currentComp = gameplayState.Bomb.BombComponents[i];
+                string type = currentComp.ComponentType.ToString();
 
                 if (type == "Timer" || type == "Empty")
                     continue;
 
-                modules += i + " - " + type + "\n";
+                modules += i + " - " + type + " - ";
+
+                switch (type)
+                {
+                    case "Wires":
+                        {
+                            // Wires - wirecount Wires - [ list them ]
+                            WireSetComponent wires = (WireSetComponent)currentComp;
+                            int wireCount = wires.WireCount;
+                            modules += wireCount.ToString() + " Wires: ";
+
+                            for (int wire = 0; wire < wireCount; wire++)
+                            {
+                                modules += wires.GetColorOfWireIndex(wire).ToString() + ",";
+
+                                if (wire == wireCount - 1)
+                                    modules += wires.GetColorOfWireIndex(wire).ToString();
+                            }
+
+                            break;
+                        }
+
+                    case "BigButton":
+                        {
+                            // BigButton - color says instruction
+                            ButtonComponent button = (ButtonComponent)currentComp;
+                            modules += button.ButtonColor.ToString() + " says " + button.ButtonInstruction.ToString();
+                            break;
+                        }
+
+                    case "Venn":
+                        {
+                            // Venn - wirecount Wires
+                            VennWireComponent venn = (VennWireComponent)currentComp;
+                            modules += venn.Wires.Length.ToString() + " Wires";
+                            break;
+                        }
+
+                    case "Keypad":
+                        {
+                            // Keypad - [keys]
+                            KeypadComponent keypad = (KeypadComponent)currentComp;
+                            for (int key = 0; key < keypad.buttons.Length; key++)
+                            {
+                                modules += keypad.buttons[key].GetText() + ",";
+
+                                if (key == keypad.buttons.Length)
+                                    modules += keypad.buttons[key].GetText();
+                            }
+                            break;
+                        }
+
+                    case "Simon":
+                        {
+                            // Simon - [color flashing]
+                            // 0 - yellow | 1 - blue | 2 - green | 3 - red
+                            // There literally is no way to tell what button is flashing
+                            // going to have to include a boolean to see what gets called in the modified .dll
+
+                            //SimonComponent simon = (SimonComponent)currentComp;
+
+                            //for (int key = 0; key < simon.buttons.Length; key++)
+                            //{
+                            //    // something here.
+                            //        modules += key + " flashing.";
+                            //}
+
+                            break;
+                        }
+
+                    case "WhosOnFirst":
+                        {
+                            // WhosOnFirst - [display]
+                            WhosOnFirstComponent whos = (WhosOnFirstComponent)currentComp;
+                            modules += whos.DisplayText.text;
+                            break;
+                        }
+
+                    case "Memory":
+                        {
+                            // Memory - [display]
+                            MemoryComponent mem = (MemoryComponent)currentComp;
+                            modules += mem.DisplayText.text;
+                            break;
+                        }
+
+                    case "WireSequence":
+                        {
+                            // WireSequence - [1 ABC, 2ABC, 3ABC]
+                            // No way of grabbing wire pages since it's private
+                            // Need to make it public in modified .dll
+                            break;
+                        }
+
+                    case "Maze":
+                        {
+                            // Maze - currentpos | goalpos
+                            // No way of grabbing maze cells since it's private
+                            // Need to make it public in modified .dll
+                            break;
+                        }
+
+                    case "Password":
+                        {
+                            // Password - [letters]
+                            PasswordComponent pw = (PasswordComponent)currentComp;
+
+                            for (int spin = 0; spin < pw.Spinners.Count(); spin++)
+                            {
+                                modules += pw.Spinners[spin].Display.text + " ";
+                            }
+
+                            break;
+                        }
+
+                }
+
+
+                modules += "\n";
             }
 
             return modules;
@@ -137,7 +257,7 @@ namespace KTANEProject
         {
             if (gameplayState.Bomb.HasDetonated)
                 return "Bomb has exploded.";
-            else if(gameplayState.Bomb.IsSolved())
+            else if (gameplayState.Bomb.IsSolved())
                 return "Bomb has been defused.";
 
             string info = string.Empty;
@@ -175,7 +295,7 @@ namespace KTANEProject
         void ProcessInput()
         {
             // Put in menu support and stuff
-            if(Input.GetKeyDown(KeyCode.Insert))
+            if (Input.GetKeyDown(KeyCode.Insert))
             {
                 bMenuOpen = !bMenuOpen;
             }
